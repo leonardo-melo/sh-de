@@ -1,0 +1,10 @@
+version: '3.10'
+
+services:
+  app:
+    image: 'py_word_counter:latest'
+    build:
+      context: .
+    container_name: py_word_counter
+    volumes:
+      - ./shared_volume:/app/shared_volume
