@@ -22,27 +22,30 @@ def write_word_count(filename, word_count):
         for word, count in sorted(word_count.items(), key=lambda x: x[1], reverse=True):
             file.write(f"{word} {count}\n")
 
+
+
 def main(params):
     input_file = "shared_volume/" + params.filename
     output_file = "shared_volume/" + params.output_filename
-    max_workers = int(params.workers)
+    max_workers = int(params.workers)    
     start_time = time.time()
-
+    
     file_size = os.path.getsize(input_file)
     chunk_size = file_size // max_workers
     if(params.chunk_size is not None):
         chunk_size = int(params.chunk_size)
+    num_chunks = file_size // chunk_size
 
+    with concurrent.futures.ProcessPoolExecutor(max_workers=max_workers) as executor:
 
-    with open(input_file, 'r') as file:
-        lines = file.readlines()
-
-    chunks = [lines[i:i+chunk_size] for i in range(0, len(lines), chunk_size)]
-
-    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = []
-        for chunk in chunks:
-            future = executor.submit(count_words, chunk)
+        for i in range(num_chunks):
+            start = i * chunk_size
+            end = start + chunk_size if i < num_chunks - 1 else file_size
+                
+            chunk = executor.submit(read_file_chunk, input_file, start, end)
+
+            future = executor.submit(count_words, chunk.result())
             futures.append(future)
 
         word_count = {}
