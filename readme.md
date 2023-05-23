@@ -1,4 +1,4 @@
-# Sword Health DE Challenge
+# SH DE Challenge
 
 ## Exercise 1
 
